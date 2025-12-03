@@ -2,9 +2,13 @@ from typing import Optional
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent.resolve()
+env_patch = BASE_DIR / ".env"
 
 
-class PostgresSettings(BaseSettings):
+class Settings(BaseSettings):
     """
     Класс для настройки подключения к базе данных Postgres.
     """
@@ -27,7 +31,7 @@ class PostgresSettings(BaseSettings):
         )
         return values
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=env_patch, env_file_encoding="utf-8")
 
-settings = PostgresSettings()
-print(settings)
+
+settings = Settings()
