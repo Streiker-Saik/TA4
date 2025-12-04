@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
 
-from fastapi import HTTPException, Request, status, Depends
+from fastapi import Request, Depends
 import jwt
 
 from app.config import settings
+from app.exceptions import TokenExpireException, TokenAbsentException, IncorrectTokenException, \
+    UserIsNonePresentException, UserNotIsAdminException
 from app.users.models import User
 from app.users.services import UserService
 
@@ -12,7 +14,7 @@ def get_token(request: Request):
     """Получение токена"""
     token = request.cookies.get("ta4_access_token")
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise TokenAbsentException
     return token
 
 
@@ -21,20 +23,20 @@ async def get_current_user(token: str = Depends(get_token)):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
     except jwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise IncorrectTokenException
     expire: str = payload.get("exp")
     if not expire or int(expire) < datetime.now(timezone.utc).timestamp():
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise TokenExpireException
     user_id: str = payload.get("sub")
     if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise UserIsNonePresentException
     user = await UserService.find_by_id(int(user_id))
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise UserIsNonePresentException
 
 
 async def get_current_user_is_admin(current_user: User = Depends(get_current_user)):
     """Проверка пользователя с правами администратора"""
     if not current_user.is_admin:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise UserNotIsAdminException
     return current_user

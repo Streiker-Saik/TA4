@@ -128,6 +128,7 @@ TA4/
 |   ├── __init__.py
 |   ├── config.py # настройка приложения
 |   ├── database.py # настройка подключения к БД
+|   ├── exceptions.py # ошибки
 |   └── main.py
 ├── .env
 ├── .env.example # шаблон для создания .env

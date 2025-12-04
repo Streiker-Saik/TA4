@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Response
 
 from app.auth.auth import authenticate_user, create_access_token, get_password_hash
 from app.auth.schemas import SUserLogin, SUserRegister
+from app.exceptions import UserAlreadyExistsException, IncorrectEmailOrPhoneOrPasswordException
 from app.users.services import UserService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -15,7 +16,7 @@ async def register_user(user_data: SUserRegister) -> dict:
     existing_phone = await UserService.find_one_or_none(phone=user_data.phone)
 
     if existing_email or existing_phone:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email или телефон уже зарегистрирован")
+        raise UserAlreadyExistsException
 
     hashed_password = get_password_hash(user_data.password)
     await UserService.add(
@@ -31,7 +32,7 @@ async def login_user(response: Response, user_data: SUserLogin):
 
     user = await authenticate_user(user_data.email, user_data.phone, user_data.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise IncorrectEmailOrPhoneOrPasswordException
 
     access_token = create_access_token({"sub": str(user.id)})
     response.set_cookie("ta4_access_token", access_token, httponly=True)

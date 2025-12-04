@@ -3,6 +3,9 @@ import re
 from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, model_validator
 
+from app.exceptions import PasswordsDontMatchException, IncorrectPasswordException, PasswordNoneException, \
+    PhoneNoneException, IncorrectPhoneException
+
 
 class SUserRegister(BaseModel):
     """Схема для регистрации пользователя с валидацией данных
@@ -32,11 +35,11 @@ class SUserRegister(BaseModel):
         phone = values.get("phone")
 
         if phone is None:
-            raise HTTPException(status_code=400, detail="Номер телефона не может быть пустым.")
+            raise PhoneNoneException
 
         pattern = re.compile(r"^\+7\d{10}$")
         if not pattern.match(phone):
-            raise HTTPException(status_code=400, detail="Номер телефона должен начинаться на +7 и содержать 10 цифр")
+            raise IncorrectPhoneException
         return values
 
     @model_validator(mode="before")
@@ -47,22 +50,14 @@ class SUserRegister(BaseModel):
         confirm_password = values.get("confirm_password")
 
         if password is None or confirm_password is None:
-            raise HTTPException(status_code=400, detail="Пароль и подтверждение пароля не могут быть пустыми.")
+            raise PasswordNoneException
 
         pattern = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[$%&!:])[A-Za-z$%&!:]{8,}$")
         if not pattern.match(password):
-            raise HTTPException(
-                status_code=400,
-                detail="Пароль должен содержать:\n"
-                "- не менее 8 символов,\n"
-                "- только латинские буквы,\n"
-                "- хотя бы одну заглавную букву,\n"
-                "- хотя бы одну строчную букву,\n"
-                "- хотя бы один спец. символ ($%&!:)",
-            )
+            raise IncorrectPasswordException
 
         if password != confirm_password:
-            raise HTTPException(status_code=400, detail="Пароли не совпадает")
+            raise PasswordsDontMatchException
         return values
 
 
