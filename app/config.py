@@ -1,8 +1,8 @@
+from pathlib import Path
 from typing import Optional
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent.resolve()
 env_patch = BASE_DIR / ".env"
@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
+
+    SECRET_KEY: str
+    ALGORITHM: str
 
     DATABASE_URL: Optional[str] = None
 

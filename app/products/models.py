@@ -1,9 +1,9 @@
-from sqlalchemy import Column, String, Integer, DateTime, Boolean, func
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, func
 
 from app.database import Base
 
 
-class Products(Base):
+class Product(Base):
     """Модель товаров"""
 
     __tablename__ = "products"
