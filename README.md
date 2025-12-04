@@ -17,23 +17,28 @@ Async, FastAPI, SQL Alchemy
 - [Services](#services)
   - [Основа](#основа)
     - [BaseService](#baseservice)
-- [Users](#users)
-  - [Модели Users](#модели-users)
-    - [User](#user)
-  - [Сервис Users](#сервис-users)
-    - [ProductService](#ProductService)
-  - [Схемы Users](#схемы-users)
+- [Auth](#Auth)
+  - [Функции авторизации Auth](#функции-авторизации-Auth)
+  - [Зависимости Auth](#зависимости-Auth)
+  - [Маршруты Auth](#маршруты-Auth)
+  - [Схемы Auth](#схемы-Auth)
     - [SUserRegister](#SUserRegister)
     - [SUserLogin](#SUserLogin)
+- [Users](#users)
+  - [Модели Users](#модели-Users)
+    - [User](#user)
+  - [Сервис Users](#сервис-users)
+    - [UserService](#UserService)
 - [Products](#products)
   - [Модели Products](#модели-Products)
     - [Product](#Product)
-  - [Сервис Products](#сервис-Products)
-    - [UserService](#UserService)
+  - [Маршруты Products](#маршруты-Products)
   - [Схемы Products](#схемы-Products)
     - [SProductCreate](#SProductCreate)
     - [SProductResponse](#SProductResponse)
     - [SProductUpdate](#SProductUpdate)
+  - [Сервис Products](#сервис-Products)
+    - [ProductService](#ProductService)
 
 ---
 ## Проверить версию Python:
@@ -114,6 +119,8 @@ TA4/
 |   |   ├── base.py
 |   ├── products # директория товаров
 |   |   ├── __init__.py
+|   |   ├── auth.py
+|   |   ├── dependencies.py
 |   |   ├── models.py
 |   |   ├── routers.py
 |   |   ├── schemas.py
@@ -123,6 +130,7 @@ TA4/
 |   ├── database.py # настройка подключения к БД
 |   └── main.py
 ├── .env
+├── .env.example # шаблон для создания .env
 ├── .flake8 # настройка для flake8
 ├── .gitignore
 ├── poetry.lock
@@ -137,27 +145,33 @@ TA4/
 ---
 ## Services:
 - ### Основа:
+  Файл: [base.py](app/services/base.py)
   - #### BaseService:
     Базовый сервис запросов к БД
 
 [<- на начало](#содержание)
 
 ---
-## Users:
-- ### Модели Users:
-  - #### User:
-      Модель пользователей:
-    - id: int - PK
-    - full_name: str - ФИО
-    - email: str - электронная почта
-    - phone: str - мобильный номер телефона
-    - password: str - пароль
-    - is_admin: bool - администратор/пользователь
-- ### Сервис Users:
-  - #### ProductService:
-    Родительский класс: **BaseService**  
-    Сервис работы с продуктом в БД
-- ### Схемы Users:
+## Auth:
+- ### Функции авторизации Auth:
+  Файл: [auth.py](app/auth/auth.py)
+  - get_password_hash - Получение хэшированного пароля
+  - verify_password - Проверка пароля
+  - create_access_token - Создание токена 
+  - authenticate_user **(async)** - Аутентификация пользователя
+- ### Зависимости Auth:
+  Файл: [dependencies.py](app/auth/dependencies.py)
+  - get_token - Получение токена с **cookies**
+  - get_current_user - Проверка авторизованного пользователя
+  - get_current_user_is_admin - Проверка пользователя с правами администратора
+- ### Маршруты Auth:
+  Файл: [routers.py](app/auth/routers.py)
+  - http://127.0.0.1:8000/auth/register
+  **(POST)** Регистрация пользователя
+  - http://127.0.0.1:8000/auth/login
+  **(POST)** Авторизация пользователя
+- ### Схемы Auth:
+  Файл: [schemas.py](app/auth/schemas.py)
   - #### SUserRegister:
     Схема для создания пользователя:
     - full_name: ФИО пользователя.
@@ -176,12 +190,33 @@ TA4/
     - email: Адрес электронной почты
     - phone: Номер телефона
     - password: Пароль.
+    Сервис работы с продуктом в БД
+
+[<- на начало](#содержание)
+
+---
+## Users:
+- ### Модели Users:
+  Файл: [models.py](app/users/models.py)
+  - #### User:
+      Модель пользователей:
+    - id: int - PK
+    - full_name: str - ФИО
+    - email: str - электронная почта
+    - phone: str - мобильный номер телефона
+    - password: str - пароль
+    - is_admin: bool - администратор/пользователь
+- ### Сервис Users:
+  Файл: [services.py](app/users/services.py)  
+  - #### UserService:
+    Родительский класс: **BaseService**  
 
 [<- на начало](#содержание)
 
 ---
 ## Products:
 - ### Модели Products:
+  Файл: [models.py](app/products/models.py)
   - #### Product:
       Модель товаров:
     - id: int - PK
@@ -190,11 +225,20 @@ TA4/
     - created_at: datetime - дата создания
     - updated_at: datetime - дата обновления
     - is_active: boll - активное/не активное
-- ### Сервис Products:
-  - #### UserService:
-    Родительский класс: **BaseService**  
-    Сервис работы с пользователями в БД
+- ### Маршруты Products:
+  Файл: [routers.py](app/products/routers.py)
+  - http://127.0.0.1:8000/products
+  **(GET)** Просмотр всех продуктов
+  - http://127.0.0.1:8000/products
+  **(POST)** Добавление продукта
+  - http://127.0.0.1:8000/products/{id}
+  **(GET)** Получение продукта по ID
+  - http://127.0.0.1:8000/products/{id}
+  **(PUT)** Обновление продукта по ID
+  - http://127.0.0.1:8000/products/{id}
+  **(DELETE)** Удаление продукта по ID
 - ### Схемы Products:
+  Файл: [schemas.py](app/products/schemas.py)
   - #### SProductCreate:
     Схема для создания продукта
     - name: Название
@@ -212,6 +256,11 @@ TA4/
     - name: Название
     - price: Цена
     - is_active: Активное/не активное
+- ### Сервис Products:
+  Файл: [service.py](app/products/service.py)
+  - #### ProductService:
+    Родительский класс: **BaseService**  
+    Сервис работы с пользователями в БД
 
 [<- на начало](#содержание)
 
