@@ -33,6 +33,7 @@ async def get_current_user(token: str = Depends(get_token)):
     user = await UserService.find_by_id(int(user_id))
     if not user:
         raise UserIsNonePresentException
+    return user
 
 
 async def get_current_user_is_admin(current_user: User = Depends(get_current_user)):

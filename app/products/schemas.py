@@ -20,7 +20,7 @@ class SProductResponse(BaseModel):
         id: id продукта
         name: Название
         price: Цена
-        create_at: Дата и время создания
+        created_at: Дата и время создания
         updated_at: Дата и время изменения
         is_active: Активное/не активное
     """
@@ -30,7 +30,7 @@ class SProductResponse(BaseModel):
     id: int
     name: str
     price: int
-    create_at: datetime
+    created_at: datetime
     updated_at: datetime
     is_active: bool
 

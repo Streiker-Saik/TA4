@@ -61,3 +61,8 @@ PasswordsDontMatchException = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Пароли не совпадает"
 )
+
+ProductNotFoundException = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Данного продукта не существует"
+)

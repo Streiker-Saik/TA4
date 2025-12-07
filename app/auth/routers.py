@@ -42,4 +42,5 @@ async def login_user(response: Response, user_data: SUserLogin):
 
 @router.post("/logout")
 async def logout_use(response: Response):
+    """Выход пользователя"""
     response.delete_cookie("ta4_access_token")

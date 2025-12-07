@@ -16,4 +16,4 @@ class Product(Base):
     is_active = Column(Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return f"<Products id={self.id} email={self.name}>"
+        return f"<Products id={self.id} name={self.name}>"
